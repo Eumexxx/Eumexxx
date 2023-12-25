@@ -1,0 +1,661 @@
+/*
+  Group members: Devin Daley, Wyatt Bomberger, Emmanuel Kpandeyenge
+*/
+
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// NDA struct for input.
+typedef struct Nda {
+  char *alphabet;
+  char **states;
+  char *startState;
+  char **finalStates;
+  char ***transRelation;
+  char **inputs;
+  bool hasInput;
+} Nda;
+
+/*Stack structure and
+ * functions*************************************************/
+typedef struct Stack {
+  char **data;  /* string data stored in the stack */
+  int top;      /* index of the last element in the array */
+  int capacity; /* current capacity of stack */
+} Stack;
+
+Stack *createStack();
+void freeStack(Stack *ps);
+void freeStackElements(Stack *ps);
+char *pop(Stack *ps);
+void push(Stack *ps, char *str);
+char *top(Stack *ps);
+bool isEmpty(Stack *ps);
+bool isFull(Stack *ps);
+void DuplicateStack(Stack *s, Stack *s1);
+int const STACK_STARTING_CAPACITY = 50;
+/*******************************************************************************/
+/*Structures and functions for traverse
+ * function********************************/
+typedef struct transition {
+  bool edge;
+  int index;
+  char value[10];
+} transition;
+
+typedef struct automata {
+  char *alphabet;
+  int numStates;
+  int numFinals;
+  int numStrings;
+  int *finals;
+  int start;
+  transition **edges;
+} automata;
+
+bool pass = false;
+
+bool addEdge(automata *Automata, int from, int to, char value);
+bool hasEdge(automata *Automata, int from, int to);
+void traverse(automata *Automata, int state, Stack *stack);
+void passorfail(automata *Automata, char **strings);
+automata *fromNDAtoAutomata(Nda *nda);
+/**********************************************************************************/
+
+// Function that takes the data and returns an nda variable.
+Nda *initializeNDA(char *alphabet, char **states, char *startState,
+                   char **finalStates, char ***transRelation, char **inputs,
+                   bool hasInput) {
+  Nda *nda = (struct Nda *)malloc(sizeof(*nda));
+  nda->alphabet = alphabet;
+  nda->states = states;
+  nda->startState = startState;
+  nda->finalStates = finalStates;
+  nda->transRelation = transRelation;
+  nda->inputs = inputs;
+  nda->hasInput = hasInput;
+
+  return nda;
+}
+
+// Takes a string, starting index value, and ending index value and returns a substring.
+char *subString(char* text, int start, int end) {
+  char *result = (char *)calloc(end-start+1, sizeof(char));
+  int resultCount = 0;
+  for (int i = start; i <= end; i++) {
+    result[resultCount] = text[i];
+    resultCount = resultCount + 1;
+  }
+
+  return result;
+}
+
+// Takes a string as input and stores the data into the transRelation variable.
+void strToTransRel(char *subStr, char ***transRelation) {
+  int level = 0;
+  int curArrInd = 0;
+  for (int i = 0; subStr[i] != '\0'; i++) {
+    if (subStr[i] == '(') {
+      level = level + 1;
+    } else if (subStr[i] == ')') {
+      level = level - 1;
+    } else if (subStr[i] != ' ' && subStr[i] != '\n' &&
+               subStr[i] != ',') { // Stores the variable names
+      // Start index variable.
+      int s = i;
+
+      // Loops until the end of the variable name.
+      while (subStr[i] != '(' && subStr[i] != ')' && subStr[i] != ' ' &&
+             subStr[i] != '\n' && subStr[i] != ',') {
+        i = i+1;
+      }
+
+      // Stores the data into the transRelation array.
+      transRelation[curArrInd/3][curArrInd%3] = subString(subStr, s, i - 1);
+      curArrInd = curArrInd+1;
+    }
+  }
+}
+
+Nda *generateNDA(char* fileName) {
+  char *alphabet = (char *)malloc(sizeof(char) * 50);
+  char **states = (char **)malloc(sizeof(char *) * 100);
+  char *startState;
+  char **finalStates = (char **)malloc(sizeof(char *) * 10);
+  char ***transRelation = (char ***)malloc(sizeof(char **) * 100);
+  for (int i = 0; i < 100; i++) {
+    transRelation[i] = (char **)malloc(sizeof(char *) * 3);
+  }
+  char **inputs = (char **)malloc(sizeof(char *) * 100);
+  bool hasInput;
+
+  // Saves the file to a string.
+  FILE *fp;
+  char *text;
+  long numbytes;
+
+  fp = fopen(fileName, "r");
+  if (fp == NULL) {
+    return NULL;
+  }
+
+  fseek(fp, 0L, SEEK_END);
+  numbytes = ftell(fp);
+  fseek(fp, 0L, SEEK_SET);
+
+  text = (char *)calloc(numbytes, sizeof(char));
+  if (text == NULL) {
+    return NULL;
+  }
+
+  fread(text, sizeof(char), numbytes, fp);
+  fclose(fp);
+
+  int level = 0;
+  int initCount = 0;
+  int transVisited = 0;
+  int start;
+  int curArrInd = 0;
+  // Loops throught the text string.
+  for (int i = 0; text[i] != '\0'; i++) {
+    if (level == 2 && initCount == 0) {
+      // Finds the start of the alphabet tuple.
+      while (text[i] != '(') {
+        i = i + 1;
+      }
+      start = i;
+
+      // Finds the end of the tuple.
+      while (text[i] != ')') {
+        i = i + 1;
+      }
+
+      // Copies the string using the index values above.
+      char *subStr = subString(text, start, i);
+
+      // Stores the characters from the subString to the alphabet array. 
+      for (int i = 0; subStr[i] != '\0'; i++) {
+        if (subStr[i] != '(' && subStr[i] != ')' && subStr[i] != ' ' &&
+            subStr[i] != '\n' && subStr[i] != ',') {
+          alphabet[curArrInd] = subStr[i];
+          curArrInd = curArrInd + 1;
+        }
+      }
+      curArrInd = 0;
+
+      initCount = initCount + 1;
+    } else if (level == 2 && initCount == 1) {
+      // Finds the start of the states tuple.
+      while (text[i] != '(') {
+        i = i + 1;
+      }
+
+      start = i;
+
+      // Finds the end of the tuple.
+      while (text[i] != ')') {
+        i = i + 1;
+      }
+
+      // Copies the string
+      char *subStr = subString(text, start, i);
+
+      // Turns the subStr into an array of strings.
+      // Loops through the subString.
+      for (int i = 0; subStr[i] != '\0'; i++) {
+        // Stops at the begining at the variable name.
+        if (subStr[i] != '(' && subStr[i] != ')' && subStr[i] != ' ' &&
+            subStr[i] != '\n' && subStr[i] != ',') {
+          // Saves the start index variable.
+          int s = i;
+
+          // Loops until the end of the variable name.
+          while (subStr[i] != '(' && subStr[i] != ')' && subStr[i] != ' ' &&
+                 subStr[i] != '\n' && subStr[i] != ',') {
+            i = i + 1;
+          }
+
+          // Saves the current variable name.
+          states[curArrInd] = subString(subStr, s, i - 1);
+          curArrInd = curArrInd + 1;
+        }
+      }
+      curArrInd = 0;
+
+      initCount = initCount + 1;
+    } else if (level == 2 && initCount == 2) {
+      // Finds the first character that is in the alphabet or is a digit.
+      while (!isalpha(text[i])&&!isdigit(text[i])) {
+        i = i + 1;
+      }
+
+      start = i;
+
+      // Finds the end of the tuple.
+      while (text[i] != ',' && text[i] != ' ' && text[i] != '\n' &&
+             text[i] != '(' && text[i] != ')') {
+        i = i + 1;
+      }
+
+      // Copies the string.
+      startState = subString(text, start, i - 1);
+
+      initCount = initCount + 1;
+    } else if (level == 2 && initCount == 3) {
+      // Finds the start of the final states tuple.
+      while (text[i] != '(') {
+        i = i + 1;
+      }
+
+      start = i;
+
+      // Finds the end ind of the final states tuple.
+      while (text[i] != ')') {
+        i = i + 1;
+      }
+
+      // Copies the final states tuple string.
+      char *subStr = subString(text, start, i);
+
+      // Turns the final states tuple string into an array of strings.
+      // Loops through the subString.
+      for (int i = 0; subStr[i] != '\0'; i++) {
+        // Stops at the begining at the variable name.
+        if (subStr[i] != '(' && subStr[i] != ')' && subStr[i] != ' ' &&
+            subStr[i] != '\n' && subStr[i] != ',') {
+          // Start index variable.
+          int s = i;
+
+          // Loops until the end of the variable name.
+          while (subStr[i] != '(' && subStr[i] != ')' && subStr[i] != ' ' &&
+                 subStr[i] != '\n' && subStr[i] != ',') {
+            i = i + 1;
+          }
+
+          // Saves the data into the finalStates array.
+          finalStates[curArrInd] = subString(subStr, s, i - 1);
+          curArrInd = curArrInd + 1;
+        }
+      }
+      curArrInd = 0;
+
+      initCount = initCount + 1;
+    } else if (level == 2 && initCount == 4) {
+      if (!transVisited) {
+        // Finds the start of the translation relation tuple.
+        while (text[i] != '(') {
+          i = i + 1;
+        }
+
+        // Saves the beggening index of the translation relation tuple string.
+        start = i;
+
+        // Increments the level.
+        level = level + 1;
+
+        // Sets transVisited to visited.
+        transVisited = 1;
+      } else {
+        // Corrects the index placement.
+        i = i-1;
+
+        // Makes a copy of the tuple:
+        char *subStr = subString(text, start, i);
+
+        // Takes transRelation and the tuple string and stores the data into transRelation.
+        strToTransRel(subStr, transRelation);
+
+        // Increments initCount.
+        initCount = initCount + 1;
+      }
+    } else if (level == 1 && initCount == 5) {
+      // Finds the start of the input tuple string.
+      while (text[i] != '(') {
+        i = i + 1;
+      }
+
+      start = i;
+
+      // Finds the end ind of the input tuple string.
+      while (text[i] != ')') {
+        i = i + 1;
+      }
+
+      // Copies the string.
+      char *subStr = subString(text, start, i);
+
+      // Turns the subStr into an array of strings.
+      // Loops through the subString
+      for (int i = 0; subStr[i] != '\0'; i++) {
+        // Stops at the begining at the variable name.
+        if (subStr[i] != '(' && subStr[i] != ')' && subStr[i] != ' ' &&
+            subStr[i] != '\n' && subStr[i] != ',') {
+          // Saves the start index variable.
+          int s = i;
+
+          // Loops until the end of the variable name.
+          while (subStr[i] != '(' && subStr[i] != ')' && subStr[i] != ' ' &&
+                 subStr[i] != '\n' && subStr[i] != ',') {
+            i = i + 1;
+          }
+
+          // Saves the inputs to int inputs array.
+          inputs[curArrInd] = subString(subStr, s, i - 1);
+          curArrInd = curArrInd + 1;
+        }
+      }
+      // Checks if the input is empty.
+      if (curArrInd == 0) {
+        hasInput = false;
+      } else {
+        hasInput = true;
+      }
+      curArrInd = 0;
+
+      initCount = initCount + 1;
+    } else {
+      // Increments/decrements level if text[i] is '(' or ')'.
+      if (text[i] == '(') {
+        level = level + 1;
+      } else if (text[i] == ')') {
+        level = level - 1;
+      }
+    }
+  }
+
+  // Returns the NDA.
+  return initializeNDA(alphabet, states, startState, finalStates, transRelation,
+                       inputs, hasInput);
+}
+
+Stack *createStack() { // Returns pointer to stack
+  Stack *ps = (Stack *)malloc(sizeof(Stack));
+  ps->top = -1;                           // Top is set to empty
+  ps->capacity = STACK_STARTING_CAPACITY; // Capacity is set to global capacity
+  ps->data = (char **)malloc(
+      sizeof(char *) * STACK_STARTING_CAPACITY); // Space for data allocated
+                                                 // based off global capacity
+
+  return ps;
+}
+
+void freeStack(Stack *ps) { // Frees stack memory including stack itself
+  free(ps->data);
+  free(ps);
+}
+
+void freeStackElements(Stack *ps) { // Frees elements in stack
+  while (isEmpty(ps) == false) {    // While stack not empty
+    free(pop(ps));
+  }
+}
+
+char *pop(Stack *ps) { // Returns character at top of stack
+  if (isEmpty(ps)) {   // If stack is empty, then nothing to pop
+    return NULL;
+  }
+  return ps->data[ps->top--]; // Return top of stack, then decrement top
+}
+
+void push(Stack *ps, char *str) { // Pushes character to top of stack
+  if (isFull(ps)) {               // If stack at capacity, allocate more memory
+    ps->capacity *= 2;
+    ps->data = (char **)realloc(ps->data, ps->capacity * sizeof(char *));
+  }
+  ps->data[++ps->top] = str; // Top of stack now holds character
+}
+
+char *top(Stack *ps) { // Returns character at top of stack, but doesn't pop
+  if (isEmpty(ps)) {   // If staack is empty, then nothing to look at
+    return NULL;
+  }
+  return ps->data[ps->top]; // Returns top of stack
+}
+
+bool isEmpty(Stack *ps) { // Returns bool for if stack is empty or not
+  if (ps->top == -1) {    // If top is at the bottom, then stack is empty
+    return true;
+  }
+  return false; // Otherwise it is not empty
+}
+
+bool isFull(Stack *ps) { // Returns bool for if stack is full or not
+  if (ps->capacity ==
+      ps->top + 1) { // If stack is at capacity, then stack is full
+    return true;
+  }
+  return false; // Otherwise it is not full
+}
+
+void DuplicateStack(Stack *s,
+                    Stack *s1) { // Adds elements from one stack to another
+  char *n;
+  Stack *s2 = createStack(); // Temporary stack to holds elements of first stack
+  while (!isEmpty(s)) { // Add all elements from first stack to temporary stack
+    n = pop(s);
+    push(s2, n);
+  }
+  while (!isEmpty(s2)) { // Add all elements from temporary stack to both the
+                         // first stack and the new stack
+    n = pop(s2);
+    push(s, n);
+    push(s1, n);
+  }
+}
+
+bool addEdge(automata *Automata, int from, int to,
+             char value) { // Adds edge from one node to another node in graph
+  Automata->edges[from][to].edge = true; // Add edge
+  Automata->edges[from][to].value[Automata->edges[from][to].index] =
+      value;                         // Add value to value array
+  Automata->edges[from][to].index++; // Increment index
+  return true;
+}
+
+bool hasEdge(
+    automata *Automata, int from,
+    int to) { // Checks if edge exists from one node to another in graph
+  return (Automata->edges[from][to].edge); // Returns bool of edge
+}
+void traverse(automata *Automata, int state,
+              Stack *stack) { // DFS inspired function to traverse automata
+                              // based off string input
+  char *top = pop(stack); // Pop character from top of stack
+  if (top !=
+      NULL) { // If character is NULL, then we cannot move through the automata
+    for (int i = 0; i < Automata->numStates; i++) { // For each state
+      for (int j = 0; j < Automata->edges[state][i].index;
+           j++) { // For each edge at state
+        if (Automata->edges[state][i].edge &&
+            Automata->edges[state][i].value[j] ==
+                top) { // If the edge exists and the value of top is equal to
+                       // that edge, then we traverse the automata through that
+                       // edge
+          Stack *copy = createStack(); // In order to do this and not have two
+                                       // traverses using the same stack..
+          DuplicateStack(stack, copy); // We must send a copy of the current
+                                       // stack through the edge
+          traverse(
+              Automata, i,
+              copy); // Traverse through edge with copy of stack to lead the way
+        }
+      }
+    }
+  }
+  bool isFinal = false; // We assume that the state we are in is NOT a final
+                        // state until it is proven
+  for (int i = 0; i < Automata->numFinals; i++) { // For each final in automata
+    if (state == Automata->finals[i]) {           // If state is equal to final
+      isFinal = true;                             // State is a final state
+    }
+  }
+  if (isEmpty(stack) &&
+      isFinal) { // If the stack is empty AND we are in a final state
+    pass = true; // The string is accepted by the automata
+  }
+}
+
+void passorfail(automata *Automata,
+                char **strings) { // Function used to traverse automata for each
+                                  // string input
+  for (int i = 0; i < Automata->numStrings; i++) { // For each string input
+    if (strings[i][0] != '\0') {                   // If string is not empty
+      printf("Testing %s...\n", strings[i]);
+      pass = false; // We assume that the string is rejected by the automata
+                    // until it is proven
+      Stack *stack = createStack(); // Allocate stack
+      int j = 0;
+      while (strings[i][j] != '\0') { // Get length of string
+        j++;
+      }
+      while (j != -1) { // Push elements in reverse, as the elements put in the
+                        // beginning should be looked at first
+        push(stack, strings[i][j]);
+        j--;
+      }
+      if (!isEmpty(stack)) { // If stack is not empty
+        traverse(Automata, Automata->start,
+                 stack);  // Traverse automata using stack
+        if (pass == true) // From traverse, pass will become true if the stack
+                          // is empty and in a final state
+          printf("Accepted.\n");
+        else
+          printf("Rejected.\n");
+      }
+    } else
+      printf(
+          "Empty String.\n"); // If string is empty, then there is nothing to do
+  }
+}
+
+automata *fromNDAtoAutomata(Nda *nda) { // Function to translate data from NDA
+                                        // structure to automata structure
+  automata *Automata = malloc(sizeof(*Automata)); // Allocate memory for
+                                                  // automata
+  int stateQuantity = 0;
+  for (int i = 0; nda->states[i] != NULL; i++) { // Gets amount of states in NDA
+    stateQuantity = stateQuantity + 1;
+  }
+  Automata->numStates =
+      stateQuantity; // Automata state amount = NDA state amount
+
+  int finalQuantity = 0;
+  for (int i = 0; nda->finalStates[i] != NULL;
+       i++) { // Gets amount of final states in NDA
+    finalQuantity = finalQuantity + 1;
+  }
+
+  int *finals =
+      malloc(sizeof(int) * finalQuantity); // Allocate memory for finals
+  int count = 0;
+  // Gets final states in NDA
+  for (int i = 0; nda->states[i] != NULL; i++) { // For each state in NDA
+    for (int j = 0; nda->finalStates[j] != NULL;
+         j++) { // For each final state in NDA
+      if (strcmp(nda->states[i], nda->finalStates[j]) ==
+          0) {             // If state = final state
+        finals[count] = i; // Final state at index count = i
+        count = count + 1; // Increment count
+      }
+    }
+  }
+
+  Automata->finals = finals;
+  Automata->numFinals = count;                   // Gets start state in NDA
+  for (int i = 0; nda->states[i] != NULL; i++) { // For each state in NDA
+    if (strcmp(nda->states[i], nda->startState) == 0) { // if state = start
+                                                        // state
+      Automata->start = i; // Automata starts at state
+      break;
+    }
+  }
+  Automata->alphabet = nda->alphabet;
+  int stringQuantity = 0;
+  for (int i = 0; nda->inputs[i] != NULL; i++) { // Gets amount of strings in
+                                                 // NDA
+    stringQuantity = stringQuantity + 1;
+  }
+
+  Automata->numStrings = stringQuantity;
+  Automata->edges =
+      malloc(sizeof(transition *) *
+             (Automata->numStates)); // Allocate pointers for each state
+  for (int i = 0; i < Automata->numStates; i++) {
+    Automata->edges[i] =
+        malloc(sizeof(transition) *
+               (Automata->numStates)); // Allocate pointers for each pointer
+  }
+
+  for (int i = 0; i < Automata->numStates; i++) {   // For each from edge
+    for (int j = 0; j < Automata->numStates; j++) { // For each to edge
+      Automata->edges[i][j].edge = false;           // Assume edge doesn't exist
+      Automata->edges[i][j].index = 0; // No values, so index starts at 0
+    }
+  }
+  // Loops through the translation relation.
+  for (int i = 0; nda->transRelation[i][0] != NULL; i++) {
+    int temp1, temp2;
+    char temp3;
+    // Loops through each state.
+    for (int j = 0; j < Automata->numStates; j++) {
+      // If first element in the i'th tuple == state, set temp1 to the index
+      // value
+      if (strcmp(nda->transRelation[i][0], nda->states[j]) == 0) {
+        temp1 = j;
+      }
+      // If third element in the i'th tuple == state, set temp2 to the index
+      // value
+      if (strcmp(nda->transRelation[i][2], nda->states[j]) == 0) {
+        temp2 = j;
+      }
+      // temp 3 = Second element of the i'th tuple
+      temp3 = nda->transRelation[i][1][0];
+    }
+    addEdge(Automata, temp1, temp2, temp3); // Add edge to automata
+  }
+  return Automata;
+}
+
+int main() {
+  // Asks the user for the file name.
+  char fileName[50];
+  printf("Please input the file name (ex: machine.txt): \n");
+  scanf("%s", fileName);
+
+  // Checks if the file name was valid.
+  Nda *nda = generateNDA(fileName);
+  if(nda==NULL) {
+    printf("Error: Incorrect file name.");
+    return 0;
+  }
+  // Transfers the data from dna to Automata.
+  automata *Automata = fromNDAtoAutomata(nda);
+
+  // Asks for input from the user if none in provided in the text file. 
+  if (!nda->hasInput) {
+    char userInput[50];
+    printf("Please input a string: \n");
+    scanf("%s", userInput);
+
+    nda->inputs[0] = userInput;
+    Automata = fromNDAtoAutomata(nda);
+    passorfail(Automata, nda->inputs);
+
+    while (strcmp(userInput, "-1") != 0) {
+      printf("\nPlease input another string (-1 to quit): \n");
+      scanf("%s", userInput);
+      if (strcmp(userInput, "-1") == 0) {
+        break;
+      }
+      nda->inputs[0] = userInput;
+      Automata = fromNDAtoAutomata(nda);
+      passorfail(Automata, nda->inputs);
+    }
+  } else {
+    passorfail(Automata, nda->inputs);
+  }
+  return 0;
+}
