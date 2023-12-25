@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+// Recursive function to create a chain of child processes
+void create_chain(int children) {
+    if (children == 0) {
+        printf("Hi (child with) PID %d\n", getpid());  // greeting message
+        exit(0);  // end the last child 
+    }
+
+    pid_t pid = fork();  // Fork 
+
+    if (pid < 0) {
+        // Fork error
+        perror("Fork failed");
+        exit(1);
+    } else if (pid == 0) {
+        // Child process
+        create_chain(children - 1);  //uses  Recursion to create more child processes
+    } else {
+        wait(NULL);  // Waits for the child processes to finish
+        exit(0);  // end parent processes
+    }
+}
+
+int main(int argc, char *argv[]) {
+    // Checks # of command line arguments
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <children>\n", argv[0]);
+        exit(1);
+    }
+
+    // Converts the command-line argument to an integer
+    int children = atoi(argv[1]);
+
+    if (children < 1) {
+        fprintf(stderr, "# children has to be 1 or more.\n");
+        exit(1);
+    }
+
+    create_chain(children);  // Create a chain of child processes
+
+    return 0;
+}
