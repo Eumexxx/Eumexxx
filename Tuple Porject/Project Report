@@ -1,0 +1,314 @@
+CS 3383 PROJECT 1 REPORT
+EXPLORE THE BEAUTY OF AUTOMATA
+
+
+
+
+November 6th, 2022
+
+
+
+
+
+
+
+
+
+
+Project Team:
+
+
+Devin Daley
+Wyatt Bomberger
+Emmanuel Kpandeyenge
+
+
+Introduction
+First and foremost the goal of this project was for us to learn to appreciate the beauty of Automata. With learning to appreciate Automata Theory we first had to learn about the concepts, diagrams and definitions. For this project, we were required to program a code that will read from a file in the format of a tuple. The code was required to be able to ask the user to input a string if there is an empty β tuple and then display whether the entered string is accepted or rejected, and will repeat the process until the given input is an empty string. The program was made with C code. It consists of 2 files: The main file “NFA.c” is used to run the entire program, and the text file “Machine.txt” which consists of an NFA in tuple format. This program was compiled in Replit.
+Data Structure 
+
+Head Files
+<ctype.h> - Declares character types
+<stdbool.h> Allows bool variables to be used in c
+<stdio.h> - Defines the standard input and output functions
+<stdlib.h> - Defines the standard library. (exit(), malloc() free()) etc.
+<string.h> - Declares a set of functions to work strings.
+	
+	Members of the NFA.C file
+freeStack- used to free stack memory including the stack in itself.
+freeStackElements - free elements within the stack
+	Array-  array of characters, was used to run loops faster and controlled within the code.
+	Struct- data type that defines a list of variables under one name in the memory, allowing for them to be accessed by a single pointer or the struct name.
+
+
+
+
+
+
+
+
+
+
+
+Algorithm (in pseudocode)  
+
+Input: 
+Text file is opened, read then closed.
+Output:
+Text file is stored in string 
+How output is related to input: The code is opened and analyzed so that the entirety of it can be stored inside of a string.
+Pseudo-code:
+Data: 
+fopen - opens the text file
+fseek/ftell - gets the length of the text file
+fread - reads the contents of the text file
+fclose - close text file
+Plan:
+// Opens the user file //
+fp = fopen("machine.txt", "r");
+  if (fp == NULL) {
+    return NULL;
+  }
+// Finds the length of file //
+  fseek(fp, 0L, SEEK_END);
+  numbytes = ftell(fp);
+  fseek(fp, 0L, SEEK_SET);
+
+  text = (char *)calloc(numbytes, sizeof(char));
+  if (text == NULL) {
+    return NULL;
+  }
+// Read the file and then it puts the entire text file on to this string.
+  fread(text, sizeof(char), numbytes, fp); 
+  fclose(fp);
+
+
+
+Input:
+Creates a stack, which frees the space to create a duplicate stack that is used so that all the elements can be added
+Output
+ Elements are added to the first stack and the new stack
+How output is related to input: We first create the stack that we empty  so that we can create a duplicate stack that we will use to add elements to a new one as well as the first one.
+Pseudo-code:
+Data: 
+createStack - Creates a stack
+freeStack - Used to free stack memory including the stack in itself.
+pop(stack) - Returns “ ” to top of stack
+is(Empty) - Empty stack
+push(stack) Pushes “ ” to top of stack 
+DuplicateStack - Adds the elements from one stack to another
+Plan:
+ // Returns pointer to stack //
+Stack *createStack()  
+  Stack *ps = (Stack *)malloc(sizeof(Stack));
+  ps->top = -1; //Top is set to empty
+
+
+// Capacity is set to global capacity //
+ ps->capacity = STACK_STARTING_CAPACITY; 
+  ps->data = (char **)malloc(sizeof(char *) * 
+// Space for data allocated based off global capacity
+STACK_STARTING_CAPACITY); //Space for data allocated based off global capacity
+  return ps;
+}
+// Frees stack memory including stack itself //
+void freeStack(Stack *ps)
+  free(ps->data);
+  free(ps);
+}
+// Frees elements in stack //
+void freeStackElements(Stack *ps) { 
+// Will return false while the stack is empty //
+  while (isEmpty(ps) == false) { 
+    free(pop(ps));
+  }
+}
+// Returns character at top of stack//
+char *pop(Stack *ps) {
+// If stack is empty, then nothing to pop //
+// Return top of stack, then decrement top //
+ if (isEmpty(ps)) {   return ps->data[ps->top--];	
+}
+// Pushes character to top of stack //
+void push(Stack *ps, char *str) {
+//If stack at capacity, allocate more memory
+  if (isFull(ps)) {
+    ps->capacity *= 2;
+    ps->data = (char **)realloc(ps->data, ps->capacity * sizeof(char *));
+  }
+  ps->data[++ps->top] = str;
+ // Top of stack now holds character //
+}
+// Returns character at top of stack, but doesn't pop //
+char *top(Stack *ps) { 
+// If stack is empty, then nothing to look at //
+  if (isEmpty(ps)) { 
+   return NULL;
+  }
+// Returns top of stack //
+  return ps->data[ps->top];
+}
+ // Returns bool for if stack is empty or not //
+bool isEmpty(Stack *ps) {
+// If top is at the bottom, then stack is empty //
+  if (ps->top == -1) {     
+return true;
+  }
+// Otherwise it is not empty  //
+  return false; 
+}
+ //Returns bool for if stack is full or not //
+bool isFull(Stack *ps) {
+// If stack is at capacity, then stack is full //
+  if (ps->capacity == ps->top + 1) { 
+    return true;
+  }
+  return false; //Otherwise it is not full
+}
+// Adds elements from one stack to another //
+void DuplicateStack(Stack *s, Stack *s1) {
+  char *n;
+// Temporary stack to holds elements of first stack //
+  Stack *s2 = createStack(); 
+// Add all elements from first stack to temporary stack //
+  while (!isEmpty(s)) {
+    n = pop(s);
+    push(s2, n); 
+  }
+// Add all elements from temporary stack to both the first stack and the new stack //
+  while (!isEmpty(s2)) {     n = pop(s2);
+    push(s, n);
+    push(s1, n);
+
+Input:
+Translate input from NDA structure to Automata structure
+Output:
+Automata structure
+How output is related to input: In order to get to the Automata structure we have to translate piece by piece the NDA structure into Automata.
+Pseudo-code:
+Data: 
+fromNDAtoAutomata - this is the function used to translate the data from the NDA structure to automata structure.
+nda->states -
+Automata->start - Automata starts at start state
+Plan:
+
+
+ // Function to translate data from NDA structure to automata structure //
+automata *fromNDAtoAutomata(Nda *nda) { 
+// Allocate memory for automata //
+  automata *Automata = malloc(sizeof(*Automata));
+  int stateQuantity = 0;
+// Gets amount of states in NDA //
+  for (int i = 0; nda->states[i] != NULL; i++) {    stateQuantity = stateQuantity + 1;
+  }
+// Automata state amount = NDA state amount //
+  Automata->numStates = stateQuantity; 
+  int finalQuantity = 0;
+// Gets amount of final states in NDA //
+  for (int i = 0; nda->finalStates[i] != NULL; i++) {     finalQuantity = finalQuantity + 1;
+  }
+// Allocate memory for finals //
+  	int *finals = malloc(sizeof(int) * finalQuantity);
+ 	int count = 0;
+// Gets final states in NDA   
+// For each state in NDA //                                       
+  	for (int i = 0; nda->states[i] != NULL; i++) { 
+// For each final state in NDA //
+   	for (int j = 0; nda->finalStates[j] != NULL; j++) { 
+// If state = final state //
+      
+if (strcmp(nda->states[i], nda->finalStates[j]) == 0) {        finals[count] = i; 
+// Final state at index count = i //
+// Increment count by 1 //
+        count = count + 1; //Increment count
+      }
+    }
+  }
+
+  Automata->finals = finals;
+  Automata->numFinals = count;
+  for (int i = 0; nda->states[i] != NULL; i++) { 
+// Gets start state in NDA //
+// if state = start state //
+    if (strcmp(nda->states[i], nda->startState) == 0) { 
+// Automata starts at state //
+      Automata->start = i; 
+      break;
+    }
+  }
+  Automata->alphabet = nda->alphabet;
+  int stringQuantity = 0;
+// Gets amount of strings in NDA //
+  for (int i = 0; nda->inputs[i] != NULL; i++) { 
+    stringQuantity = stringQuantity + 1;
+  }
+
+
+
+Test Cases  
+Input:
+testCase1.txt
+(
+ (
+  (0, 1),
+  (q0, q1, q2),
+  q0,
+  (q2),
+  ((q0, 0, q0), (q0, 1, q0),(q0, 0, q1),(q1, 1, q2))
+ ), 
+ ()
+)
+
+Output:
+Asks the user for input
+
+Input:
+testCase2.txt
+(
+ (
+  (0, 1),
+  (q0, q1, q2),
+  q0,
+  (q2),
+  ((q0, 0, q0), (q0, 1, q0),(q0, 0, q1),(q1, 1, q2))
+ ), 
+ (1101, 0001, 1110)
+)
+
+Output:
+Please input the file name (ex: machine.txt): 
+machine.txt
+Testing 1101...
+Accepted.
+Testing 0001...
+Accepted.
+Testing 1110...
+Rejected.
+
+Input:
+testCase3.txt
+(((a, b, c, 1, 2, 3),(q0, q1, q2, q3, q4, q5, q6),q0,(q6),((q0, a, q1), (q1, b, q2),(q2, c, q3),(q3, a, q3),(q3, b, q3),(q3, c, q3),(q3, 1, q3),(q3, 2, q3),(q3, 3, q3),(q3, 1, q4),(q4, 2, q5),(q5, 3, q6))),(abc123,abccab123, abcdefg123, abc321, cba123))
+
+Output:
+Please input the file name (ex: machine.txt): 
+test.txt
+Testing abc123...
+Accepted.
+Testing abccab123...
+Accepted.
+Testing abcdefg123...
+Rejected.
+Testing abc321...
+Rejected.
+Testing cba123...
+Rejected.
+
+
+
+Acknowledgement 
+Devin Daley: Code 
+Wyatt Bomberger: Code
+Emmanuel Kpandeyenge: Report/Pseudocode/Code
+Textbook: Elements of the theory of computation by Harry R. Lewis and Christos H. Papadimitriou
+Source: https://www.tutorialkart.com/c-programming/c-read-text-file/
+
