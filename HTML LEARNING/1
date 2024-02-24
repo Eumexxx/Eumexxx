@@ -1,0 +1,45 @@
+<html>
+    <header> 
+         </head>
+</header>
+<main>
+<body>
+    <h1> <p<u style="color:black; text-align:middle">T1 Keyboards</u></b></p></h1>
+    <img src="https://blob.sololearn.com/courses/np.png">
+    <!.. Product Descirption ..>
+    <p><b><i>This product is the newest most amazing keyboard on the market<b><i></P>
+    
+<h1><p style="color:Black; "> Items </p> </h1>
+
+<ol>
+<li> T1 Red Keyboard </li>
+<li> T1 Blue Keyboard </li>
+</ol>
+
+<H2><P  style="color:Black; "> Order Now </P></H2>
+<form>
+     <label for="s1">
+        Color of Keyboard:</label>
+    <select name="vehicle" id="s1">
+    <option value="Red">
+        Red</option>
+        <option value="Blue">
+        Blue</option> 
+        </select>
+</form>
+<form>
+      <label for="email">Email:</label>
+      <input type="email" id="em"><br>
+      <!-- requires the user to 
+          enter a phone number -->
+      <label for="tel">Telephone:</label>
+      <input type="tel" id="tel"><br>
+      <button style ="background-color:yellow;
+        color:red; border:none; border-radius:5px" onclick="alert('ORDER CONFIRMED!')""> Submit </button>
+ </form>
+    </body>
+</main>
+<footer>
+   <p style="color:black; text-align:center"> "Made with HTML" </p>
+</footer>
+</htmL>
