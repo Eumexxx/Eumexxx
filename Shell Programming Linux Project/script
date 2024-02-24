@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/bin/bash
 # Compile the programs
 
@@ -22,3 +23,29 @@ echo "processes program with:"
 
 # Clean up (remove the compiled executables)
 rm -f children processes
+=======
+#!/bin/bash
+# Compile the programs
+
+gcc -o children children.c
+gcc -o processes processes.c
+
+# Test the children program with different arguments
+echo "children program with 2 :"
+./children 2
+echo "children program with 4 :"
+./children 4
+echo "children program with 8 :"
+./children 8
+
+# Test the processes program with different arguments
+echo "processes program with:"
+./processes 2
+echo "processes program with:"
+./processes 4
+echo "processes program with:"
+./processes 8
+
+# Clean up (remove the compiled executables)
+rm -f children processes
+>>>>>>> 96b0a14b28dbd9e67d5af405f7e9f7e686abf08a

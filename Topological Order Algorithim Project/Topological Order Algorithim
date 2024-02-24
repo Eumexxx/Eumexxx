@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 class Graph:
     def __init__(self):
         self.graph = {}
@@ -80,3 +81,87 @@ with open('topological_sort_file.txt', 'w') as file:
         file.write(course + '\n')
 
 print("Topological order has been written to 'topological_sort_file.txt'.")
+=======
+class Graph:
+    def __init__(self):
+        self.graph = {}
+
+    def add_node(self, node):
+        if node not in self.graph:
+            self.graph[node] = []
+
+    def add_edge(self, node1, node2):
+        if node1 in self.graph and node2 in self.graph:
+            self.graph[node1].append(node2)
+
+    def topological_sort(self):
+        visited = set()
+        post_visit = {}
+        post_visit_num = [0]
+        topological_order = []
+
+        def dfs(node):
+            visited.add(node)
+            for neighbor in self.graph[node]:
+                if neighbor not in visited:
+                    dfs(neighbor)
+            post_visit[node] = post_visit_num[0]
+            post_visit_num[0] += 1
+            topological_order.append(node)
+
+        for node in self.graph:
+            if node not in visited:
+                dfs(node)
+
+        topological_order.sort(key=lambda node: -post_visit[node])
+        return topological_order
+
+# Create a graph from course prerequisites
+course_prerequisites = {
+    "CS 1411": [],
+    "MATH 1451": [],
+    "ENGL 1301": [],
+    "CS 1412": ["CS 1411"],
+    "MATH 1452": ["MATH 1451"],
+    "PHYS 1408": ["MATH 1451"],
+    "ENGL 1302": ["ENGL 1301"],
+    "CS 2413": ["CS 1412"],
+    "CS 1382": ["CS 1411"],
+    "ECE 2372": ["MATH 1451"],
+    "MATH 2450": ["MATH 1452"],
+    "PHYS 2401": ["PHYS 1408"],
+    "CS 2350": ["CS 1412", "ECE 2372"],
+    "CS 2365": ["CS 2413"],
+    "ENGR 2392": [],
+    "POLS 1301": [],
+    "MATH 2360": ["MATH 1452"],
+    "ENGL 2311": ["ENGL 1301", "ENGL 1302"],
+    "CS 3361": ["CS 2413"],
+    "CS 3364": ["CS 2413", "CS 1382", "MATH 2360"],
+    "MATH 3342": ["MATH 2450"],
+    "POLS 2306": [],
+    "CS 3365": ["CS 2365", "CS 2413", "MATH 3342"],
+    "CS 3375": ["CS 2350"],
+    "CS 3383": ["CS 1382"],
+    "CS 4365": ["CS 3365"],
+    "CS 4352": ["CS 3364", "CS 3375"],
+    "CS 4354": ["CS 3364"],
+    "CS 4366": ["CS 4365"]
+}
+
+graph = Graph()
+for course, prerequisites in course_prerequisites.items():
+    graph.add_node(course)
+    for prereq in prerequisites:
+        graph.add_edge(prereq, course)
+
+# Perform topological sort
+topological_order = graph.topological_sort()
+
+# Output the topological order to a file
+with open('topological_sort_file.txt', 'w') as file:
+    for course in topological_order:
+        file.write(course + '\n')
+
+print("Topological order has been written to 'topological_sort_file.txt'.")
+>>>>>>> 96b0a14b28dbd9e67d5af405f7e9f7e686abf08a

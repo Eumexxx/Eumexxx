@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/bin/bash
 
 temph=`date | cut -c12-13`
@@ -32,3 +33,39 @@ fi
 
 echo -e "$msg\nThis is $dat" > greetingmsg
 
+=======
+#!/bin/bash
+
+temph=`date | cut -c12-13`
+dat=`date +"%A %d in %B of %Y (%r)"`
+
+if [ $temph -lt 12 ]
+then
+    msg="Good Morning $LOGNAME, Have nice day!"
+fi
+
+if [ $temph -ge 12 -a $temph -le 16 ]
+then
+    msg="Good Afternoon $LOGNAME"
+fi
+
+if [ $temph -gt 16 -a $temph -le 20 ]
+then
+    msg="Good Evening $LOGNAME"
+else
+
+    msg="Hello $LOGNAME!"
+fi
+
+
+#echo $temph
+#echo $dat
+
+if [ -f "greetingmsg" ];
+then
+    rm greetingmsg
+fi
+
+echo -e "$msg\nThis is $dat" > greetingmsg
+
+>>>>>>> 96b0a14b28dbd9e67d5af405f7e9f7e686abf08a

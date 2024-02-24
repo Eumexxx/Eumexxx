@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 create database dbproj;
 use dbproj;
 
@@ -156,3 +157,163 @@ VALUES
     (4, '09:30:00', '17:30:00', '2023-12-01'), (2, '08:00:00', '16:00:00', '2023-12-01'),
     (5, '08:30:00', '16:30:00', '2023-12-01'),(8, '09:00:00', '17:00:00', '2023-12-01');
     
+=======
+create database dbproj;
+use dbproj;
+
+CREATE TABLE employee(
+employee_id INT PRIMARY KEY auto_increment, 
+fname VARCHAR(45) NOT NULL,
+lname VARCHAR(45) NOT NULL,
+salary INT NOT NULL,
+position VARCHAR(45) NOT NULL,
+manager_id INT,
+department VARCHAR(45) NOT NULL
+);
+drop table manager;
+CREATE TABLE manager(
+    manager_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    fname VARCHAR(45) NOT NULL,
+    lname VARCHAR(45) NOT NULL,
+    salary INT NOT NULL,
+    department VARCHAR(45) NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employee (employee_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE shifts(
+shift_id INT PRIMARY KEY auto_increment,
+employee_id INT,
+CONSTRAINT employee_shift FOREIGN KEY (employee_id) REFERENCES employee (employee_id) ON DELETE CASCADE ON UPDATE CASCADE, 
+shift_start TIME, 
+shift_end TIME,
+shift_Day DATE
+);
+CREATE TABLE storeStock(
+    StockID int PRIMARY KEY auto_increment,
+    ProductName varchar(45) NOT NULL,
+    Quantity int NOT NULL,
+    StorePrice decimal(10,2) NOT NULL,
+    RestockPrice decimal(10,2) NOT NULL,
+    RestockQuantity int NOT NULL,
+    Manufacturer varchar(45) NOT NULL,
+    Department varchar(45) NOT NULL,
+    Category varchar(45) NOT NULL
+);
+
+CREATE TABLE Delivery(
+    DeliveryID int PRIMARY KEY auto_increment,
+    StockID int,
+    CONSTRAINT ProductID foreign key (StockID) references storeStock(StockID) ON DELETE CASCADE ON UPDATE CASCADE,
+    LastDelivery date,
+    QuantityDelivered int
+);
+
+CREATE TABLE customers(
+customer_id INT PRIMARY KEY auto_increment,
+first_name VARCHAR(20) NOT NULL,
+last_name VARCHAR(20) NOT NULL,
+email VARCHAR(45) NOT NULL,
+phone_number VARCHAR(10),
+address VARCHAR(100)
+);
+CREATE TABLE returnanble(
+	returnID INT PRIMARY KEY,
+    stockID INT);
+    
+CREATE TABLE product_sales(
+sale_id INT PRIMARY KEY auto_increment,
+customer_id INT,
+product_name VARCHAR(50) NOT NULL,
+quantity INT NOT NULL,
+total_price DECIMAL(10,2) NOT NULL,
+sale_date DATE,
+FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO customers (first_name, last_name, email, phone_number, address)
+VALUES
+    ('John', 'Doe', 'john.doe@example.com', '1234567890', '123 Main St, Cityville'),
+    ('Jane', 'Smith', 'jane.smith@example.com', '9876543210', '456 Oak St, Townsville'),
+    ('Alice', 'Johnson', 'alice.johnson@example.com', '1112223333', '789 Pine St, Villagetown'),
+    ('Bob', 'Williams', 'bob.williams@example.com', '4445556666', '321 Elm St, Hamletville'),
+    ('Eva', 'Davis', 'eva.davis@example.com', '9998887777', '555 Maple St, Suburbia'),
+    ('Michael', 'Brown', 'michael.brown@example.com', '6667778888', '777 Cedar St, Countryside'),
+    ('Sara', 'Clark', 'sara.clark@example.com', '3334445555', '888 Birch St, Outskirts'),
+    ('David', 'Taylor', 'david.taylor@example.com', '7778889999', '999 Pine St, Farmland');
+    
+    
+INSERT INTO product_sales (customer_id, product_name, quantity, total_price, sale_date)
+VALUES
+    (1, 'PS5 Controller', 2, 139.98, '2023-12-02'),(3, 'Fresh Foam Arishi v4', 1, 69.99, '2023-12-02'), 
+    (6, 'Air Force 1', 3, 359.97, '2023-12-02'),(2, 'Nintendo Switch', 1, 599.99, '2023-12-03'), 
+    (4, 'Broccoli', 5, 14.95, '2023-12-03'), (7, 'Fresh Foam Arishi v4', 2, 139.98, '2023-12-03');
+
+
+
+INSERT INTO storeStock (
+    ProductName, Quantity, StorePrice, RestockPrice, RestockQuantity, Manufacturer, Department, Category
+) VALUES 
+    ('Laptop', 20, 899.99, 799.99, 15, 'Dell', 'Electronics', 'Computers'),
+    ('Smartphone', 30, 699.99, 599.99, 20, 'Samsung', 'Electronics', 'Mobile'),
+    ('Coffee Maker', 15, 49.99, 39.99, 10, 'Hamilton Beach', 'Appliances', 'Kitchen'),
+    ('LED TV', 25, 1299.99, 1099.99, 18, 'Sony', 'Electronics', 'TVs'),
+    ('Running Shoes', 40, 79.99, 59.99, 30, 'Nike', 'Apparel', 'Footwear'),
+    ('Desk Chair', 10, 149.99, 129.99, 8, 'OfficeMax', 'Furniture', 'Office'),
+    ('Backpack', 50, 29.99, 24.99, 40, 'Adidas', 'Apparel', 'Accessories'),
+    ('Blender', 12, 39.99, 29.99, 8, 'KitchenAid', 'Appliances', 'Kitchen'),
+    ('Winter Jacket', 18, 149.99, 119.99, 15, 'The North Face', 'Apparel', 'Outerwear'),
+    ('Digital Camera', 8, 599.99, 499.99, 5, 'Canon', 'Electronics', 'Cameras'),
+    ('PS5 Controller', 25, 69.99, 499.99, 30, 'Sony', 'Electronics', 'Controller'),
+    ('Nintendo Switch', 10, 599.99, 6999.99, 20, 'Nintendo', 'Electronics', 'Console'),
+	('Fresh Foam Arishi v4', 8, 69.99, 149.99, 4, 'New Balance', 'Apparel', 'Shoes'),
+    ('Broccoli', 10, 2.99, 19.99, 20, 'Broccoli Farms', 'Food', 'Produce'),
+	('Air Force 1', 4, 119.99, 299.99, 6, 'Nike', 'Apparel', 'Shoes');
+
+
+
+
+INSERT INTO Delivery VALUES(
+    NULL, 1, '2023-11-23',1
+);
+
+INSERT INTO Delivery VALUES(
+    NULL, 2, '2023-11-17',10
+);
+
+INSERT INTO Delivery VALUES(
+    NULL, 3, '2023-11-19',10
+);
+
+INSERT INTO Delivery VALUES(
+    NULL, 4, '2023-11-01',10
+);
+
+INSERT INTO Delivery VALUES(
+    NULL, 5, '2023-11-09',10
+);
+
+
+
+INSERT INTO employee (fname, lname, salary, position, manager_id, department)
+VALUES
+    ('John', 'Doe', 50000, 'Developer', 1, 'Grocery'),
+    ('Jane', 'Smith', 60000, 'Manager', 1, 'Grocery'),
+    ('Alice', 'Johnson', 45000, 'Assistant', 2, 'Grocery'),
+    ('Bob', 'Williams', 55000, 'Developer', 1, 'Grocery'),
+    ('Eva', 'Davis', 70000, 'Manager', 2, 'Grocery'),
+    ('Michael', 'Brown', 48000, 'Assistant', 2, 'Grocery'),
+    ('Sara', 'Clark', 52000, 'Developer', 1, 'Clothing'),
+    ('David', 'Taylor', 65000, 'Manager', 1, 'Clothing'),
+    ('Emily', 'Moore', 47000, 'Assistant', 2, 'Clothing'),
+    ('Chris', 'White', 59000, 'Developer', Null, 'CustomerService');
+    INSERT INTO manager (manager_id,employee_id, fname, lname, salary, department)
+VALUES
+    (1,1, 'John', 'Doe', 80000, 'Grocery'), 
+    (2,2, 'Jane', 'Smith', 90000, 'Grocery');
+INSERT INTO shifts (employee_id, shift_start, shift_end, shift_Day)
+VALUES
+    (1, '09:00:00', '17:00:00', '2023-12-01'), (3, '10:00:00', '18:00:00', '2023-12-01'),
+    (4, '09:30:00', '17:30:00', '2023-12-01'), (2, '08:00:00', '16:00:00', '2023-12-01'),
+    (5, '08:30:00', '16:30:00', '2023-12-01'),(8, '09:00:00', '17:00:00', '2023-12-01');
+    
+>>>>>>> 96b0a14b28dbd9e67d5af405f7e9f7e686abf08a

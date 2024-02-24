@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 #!/bin/bash
 
 echo "Hello, $LOGNAME"
 echo "Current date is `date`"
 echo "User is `whoami`"
 echo "Current directory `pwd`"
+=======
+#!/bin/bash
+
+echo "Hello, $LOGNAME"
+echo "Current date is `date`"
+echo "User is `whoami`"
+echo "Current directory `pwd`"
+>>>>>>> 96b0a14b28dbd9e67d5af405f7e9f7e686abf08a
