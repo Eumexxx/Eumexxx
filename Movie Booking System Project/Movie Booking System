@@ -303,7 +303,7 @@ void currentMovie(char old[][40], int x) {
         "too, is worth waiting for. Cannibalism has never looked prettier.\n");
     printf("\n\t1.5/5 stars! Filled with underdeveloped characters and a plot "
            "that goes nowhere, it reinforces the feeling I got from Luca "
-           "Guadagnino’s Suspiria remake: this director doesn’t understand "
+           "Guadagninoâs Suspiria remake: this director doesnât understand "
            "horror but is really good at putting viewers to sleep.\n");
     printf("\n\t5/5 stars! Chalamet proved once and for all that he is the "
            "real deal.\n");
@@ -628,7 +628,7 @@ static void search() {
         "too, is worth waiting for. Cannibalism has never looked prettier.\n");
     printf("\n\t1.5/5 stars! Filled with underdeveloped characters and a plot "
            "that goes nowhere, it reinforces the feeling I got from Luca "
-           "Guadagnino’s Suspiria remake: this director doesn’t understand "
+           "Guadagninoâs Suspiria remake: this director doesnât understand "
            "horror but is really good at putting viewers to sleep.\n");
     printf("\n\t5/5 stars! Chalamet proved once and for all that he is the "
            "real deal.\n");
@@ -854,7 +854,7 @@ void buyTickets(char str[]) {
       printf("Theater: %s Day: %s Time: %s", theater, day, movieTime);
     } else if (strcmp(theater, "Cinemark") == 0 &&
                (strcmp(movieTime, "2:00" == 0) || strcmp(movieTime, "4:55" == 0) || strcmp(movieTime, "7:45") == 0) ||
-                strcmp(movieTime, "10:35") == 0)) {
+                strcmp(movieTime, "10:35") == 0) {
       printf("Theater: %s Day: %s Time: %s", theater, day, movieTime);
     } else if (strcmp(theater, "Lubbock") == 0 &&
                ((strcmp(movieTime, "12:00") == 0) ||
@@ -1254,3 +1254,22 @@ void removee(char update[][40], int y) {
   
   
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
