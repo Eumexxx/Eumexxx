@@ -1,0 +1,36 @@
+SQL Stock Management Project
+This project aims to develop an efficient and scalable database system for managing stock in a regular store, addressing challenges related to inventory tracking, stock management, and retrieval of real-time stock information.
+
+Table of Contents
+Introduction
+Design Approach
+Features
+Queries
+Extensions
+Collaboration
+Introduction
+In modern business operations, effective stock management is crucial for maintaining customer satisfaction and optimizing resource utilization. This project recognizes the need for a robust database system to streamline stock-related processes in a retail environment.
+
+Design Approach
+The project employs a three-tiered design and implementation approach:
+
+Conceptual Design: Outlines entity relationships.
+Logical Design: Specifies entities, relationships, and employs normalization techniques.
+Physical Design: Details MySQL implementation, covering table specifications, data types, and referential integrity considerations.
+Features
+Employee Management: Tracks employee details including name, salary, position, and department.
+Shift Scheduling: Manages employee shift information including start time, end time, and shift day.
+Stock Management: Records stock details such as product name, quantity, prices, manufacturer, and category.
+Customer Management: Stores customer information for sales transactions.
+Sales Tracking: Records product sales including customer ID, product name, quantity, total price, and sale date.
+Delivery Management: Tracks deliveries including the stock delivered, delivery date, and quantity.
+Returnable Items: Records items that are eligible for return along with their stock IDs.
+Queries
+Sample queries demonstrate the database's ability to handle tasks like inventory tracking, stock updates, and retrieval of product information.
+
+Extensions
+Predictive Stock Ordering: Proposes extensions for predictive stock ordering based on research.
+Performance Optimization: Discusses trade-offs, notably considerations for denormalization based on performance requirements.
+Collaboration
+The project involved collaboration with stakeholders to gather requirements and ensure the database solution met business needs.
+
