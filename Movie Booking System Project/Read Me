@@ -1,0 +1,9 @@
+Movie Ticket Booking System in C
+Welcome to the Movie Ticket Booking System repository! This project aims to provide a seamless experience for users to book movie tickets with ease. Below you will find information on how to use the system, its features, and how to contribute.
+
+Features
+User Authentication: Users can create new accounts or log in with existing ones.
+Movie Booking: Users can browse available movies and book tickets for desired showtimes.
+Admin Panel: Administrators can efficiently manage movie viewings, ensuring smooth operation.
+File Storage: User and movie information is stored in files for easy access and retrieval.
+Error Handling: Robust error handling to ensure a smooth user experience.
