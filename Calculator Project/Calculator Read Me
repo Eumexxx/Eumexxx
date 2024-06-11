@@ -1,0 +1,28 @@
+# GUI Calculator
+
+This is a simple GUI calculator program built using Python's tkinter library. It provides a user-friendly interface for performing basic arithmetic operations such as addition, subtraction, multiplication, and division.
+
+## Features
+
+- **User-Friendly Interface**: The calculator provides an intuitive interface with buttons for digits and arithmetic operations.
+- **Error Handling**: Division by zero errors are gracefully handled, and appropriate error messages are displayed on the calculator screen.
+- **Clear Functionality**: Users can clear the calculator display with a single click.
+
+## Requirements
+
+- Python 3.x
+- tkinter library (should be included with most Python installations)
+
+## How to Run
+
+1. Clone this repository to your local machine or download the files.
+2. Navigate to the directory containing the files.
+3. Run the following command to start the calculator:
+
+4. The calculator window will open, allowing you to perform arithmetic operations.
+
+## Usage
+
+- Click on the digits and arithmetic operation buttons to enter your expression.
+- Press the "=" button to calculate the result.
+- Press the "C" button to clear the calculator display.
