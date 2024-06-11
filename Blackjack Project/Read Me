@@ -1,0 +1,33 @@
+# Blackjack Game
+
+## Description
+This is a simple text-based implementation of the Blackjack card game. The game allows a single player to play against an AI dealer.
+
+## How to Play
+1. Run the `blackjack.py` script to start the game.
+2. Follow the prompts to decide whether to hit or stand during your turn.
+3. The game will automatically play the AI dealer's turn.
+4. Once both players have completed their turns, the winner will be determined based on the total value of their hands.
+5. The game will display the final hands of both players and announce the winner.
+
+## Files
+- `blackjack.py`: The main Python script containing the game logic.
+- `card_images/`: Directory containing image files for the card graphics.
+- `README.md`: This file, providing information about the game.
+
+## Dependencies
+- Python 3.x
+- Pygame (if using card graphics)
+
+## How to Install Dependencies
+1. Install Python from the official Python website: https://www.python.org/
+2. Install Pygame using pip:
+    ```
+    pip install pygame
+    ```
+
+## Credits
+- Developed by [Your Name]
+
+## License
+This project is licensed under the [MIT License](LICENSE).
